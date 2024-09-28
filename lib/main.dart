@@ -1,4 +1,6 @@
 // import 'package:chat_with_stranger/Screens/Homescreen.dart';
+import 'package:anonymous_chat/login_screen.dart';
+import 'package:anonymous_chat/sign_up_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,14 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(),
       // home: HomeScreen(),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Chat with Stranger'),
-        ),
-        body: const Center(
-          child: Text('Hello World'),
-        ),
-      ),
+      home: LoginScreen(),
     );
   }
 }
