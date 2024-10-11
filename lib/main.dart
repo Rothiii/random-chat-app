@@ -1,4 +1,7 @@
 // import 'package:chat_with_stranger/Screens/Homescreen.dart';
+import 'package:anonymous_chat/chat_anonym_screen.dart';
+import 'package:anonymous_chat/chat_bot_screen.dart';
+import 'package:anonymous_chat/home.dart';
 import 'package:anonymous_chat/login_screen.dart';
 import 'package:anonymous_chat/sign_up_screen.dart';
 import 'package:flutter/material.dart';
@@ -15,8 +18,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(),
-      // home: HomeScreen(),
-      home: LoginScreen(),
+      // home: const LoginScreen(),
+      routes: {
+        '/': (context) => const LoginScreen(),
+        '/Login': (context) => const LoginScreen(),
+        '/SignUp': (context) => const SignUpScreen(),
+        '/Home': (context) => const HomeScreen(),
+        '/ChatBot': (context) => const ChatBotScreen(),
+        '/ChatAnonym': (context) => const ChatAnonymScreen(),
+      },
+      debugShowCheckedModeBanner: false,
     );
   }
 }
