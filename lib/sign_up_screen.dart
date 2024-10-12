@@ -1,12 +1,76 @@
+import 'package:anonymous_chat/service/auth_service.dart';
 import 'package:flutter/material.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
+
+  @override
+  _SignUpScreenState createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  String? _usernameError;
+  String? _fullNameError;
+  String? _phoneNumberError;
+  String? _passwordError;
+
+  // Method to handle the sign-up action
+  void _registerUser() async {
+    final String username = _usernameController.text;
+    final String fullName = _fullNameController.text;
+    final String phoneNumber = _phoneNumberController.text;
+    final String password = _passwordController.text;
+
+    if (username.isNotEmpty && fullName.isNotEmpty && phoneNumber.isNotEmpty && password.isNotEmpty) {
+      final response = await AuthService.registerUser(username, fullName, phoneNumber, password);
+
+      if (response['success']) {
+        // Registration successful
+        // Navigate to home or login screen
+        Navigator.pushNamed(context, '/home');
+      } else {
+        // Handle validation errors
+        setState(() {
+          // Clear previous errors
+          _usernameError = null;
+          _fullNameError = null;
+          _phoneNumberError = null;
+          _passwordError = null;
+
+          // Parse error messages from the response
+          for (var error in response['errors']) {
+            error.forEach((key, value) {
+              if (key == 'username') {
+                _usernameError = value;
+              } else if (key == 'phone_number') {
+                _phoneNumberError = value;
+              } else if (key == 'password') {
+                _passwordError = value;
+              }
+            });
+          }
+        });
+      }
+    } else {
+      // Handle form validation (e.g., show error message)
+      setState(() {
+        _usernameError = _usernameController.text.isEmpty ? 'Username is required' : null;
+        _fullNameError = _fullNameController.text.isEmpty ? 'Full name is required' : null;
+        _phoneNumberError = _phoneNumberController.text.isEmpty ? 'Phone number is required' : null;
+        _passwordError = _passwordController.text.isEmpty ? 'Password is required' : null;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Background color matching the design
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -16,40 +80,15 @@ class SignUpScreen extends StatelessWidget {
               // App Logo
               Image.asset(
                 'assets/images/image_registerscreen.png',
-                height: 250, // Adjust height as needed
+                height: 250,
               ),
               const SizedBox(height: 40),
 
-              // User Login Text
-              const Column(
-                children: [
-                  Text(
-                    'Let\'s Get Started',
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orange,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  Text(
-                    'Create an account to continue',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.orange,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-
-              // Username Input Field
+              // Input fields
               TextField(
+                controller: _usernameController,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(
-                    Icons.person,
-                    color: Colors.white,
-                  ),
+                  prefixIcon: const Icon(Icons.person, color: Colors.white),
                   hintText: 'Username',
                   hintStyle: const TextStyle(color: Colors.white54),
                   filled: true,
@@ -58,43 +97,71 @@ class SignUpScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30),
                     borderSide: BorderSide.none,
                   ),
+                  errorText: _usernameError,
                 ),
                 style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 20),
 
-              // Password Input Field
               TextField(
+                controller: _fullNameController,
+                decoration: InputDecoration(
+                    prefixIcon:
+                        const Icon(Icons.person_outline, color: Colors.white),
+                    hintText: 'Full Name',
+                    hintStyle: const TextStyle(color: Colors.white54),
+                    filled: true,
+                    fillColor: Colors.orange,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    errorText: _fullNameError),
+                style: const TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 20),
+
+              TextField(
+                controller: _phoneNumberController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.phone, color: Colors.white),
+                    hintText: 'Phone Number',
+                    hintStyle: const TextStyle(color: Colors.white54),
+                    filled: true,
+                    fillColor: Colors.orange,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    errorText: _phoneNumberError),
+                style: const TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 20),
+
+              TextField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(
-                    Icons.lock,
-                    color: Colors.white,
-                  ),
-                  hintText: 'Password',
-                  hintStyle: const TextStyle(
-                    color: Colors.white54,
-                  ),
-                  filled: true,
-                  fillColor: Colors.orange,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
+                    prefixIcon: const Icon(Icons.lock, color: Colors.white),
+                    hintText: 'Password',
+                    hintStyle: const TextStyle(color: Colors.white54),
+                    filled: true,
+                    fillColor: Colors.orange,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    errorText: _passwordError),
                 style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 30),
 
-              // Login Button
               ElevatedButton(
-                onPressed: () {
-                  // Handle login logic
-                  Navigator.pushNamed(context, '/Login');
-                },
+                onPressed: _registerUser, // Call the register function
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.orange,
-                  backgroundColor: Colors.black, // Text color
+                  backgroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -112,53 +179,24 @@ class SignUpScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Sign Up Button
+              // Already have an account
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
                     'Already have an account?',
-                    style: TextStyle(
-                      color: Colors.orange,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: Colors.orange, fontSize: 16),
                   ),
                   TextButton(
                     onPressed: () {
-                      // Handle sign up navigation
                       Navigator.pushNamed(context, '/Login');
                     },
                     child: const Text(
                       'Login',
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(color: Colors.black87, fontSize: 16),
                     ),
                   ),
                 ],
-              ),
-              const Text(
-                "Or",
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              // Login as Guest Button
-              TextButton(
-                onPressed: () {
-                  // Handle login as guest
-                  Navigator.pushNamed(context, '/Home');
-                },
-                child: const Text(
-                  'Login as Guest',
-                  style: TextStyle(
-                    color: Colors.black87,
-                    fontSize: 16,
-                  ),
-                ),
               ),
             ],
           ),

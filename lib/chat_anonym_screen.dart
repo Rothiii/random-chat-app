@@ -5,6 +5,7 @@ class ChatAnonymScreen extends StatefulWidget {
   const ChatAnonymScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChatAnonymScreenState createState() => _ChatAnonymScreenState();
 }
 

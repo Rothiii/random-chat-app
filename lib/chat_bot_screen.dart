@@ -5,6 +5,7 @@ class ChatBotScreen extends StatefulWidget {
   const ChatBotScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChatBotScreenState createState() => _ChatBotScreenState();
 }
 
