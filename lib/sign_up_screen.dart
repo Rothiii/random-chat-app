@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:anonymous_chat/service/auth_service.dart';
 import 'package:flutter/material.dart';
 
@@ -5,7 +7,7 @@ class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
   @override
-  _SignUpScreenState createState() => _SignUpScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
@@ -18,54 +20,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? _fullNameError;
   String? _phoneNumberError;
   String? _passwordError;
-
-  // Method to handle the sign-up action
-  void _registerUser() async {
-    final String username = _usernameController.text;
-    final String fullName = _fullNameController.text;
-    final String phoneNumber = _phoneNumberController.text;
-    final String password = _passwordController.text;
-
-    if (username.isNotEmpty && fullName.isNotEmpty && phoneNumber.isNotEmpty && password.isNotEmpty) {
-      final response = await AuthService.registerUser(username, fullName, phoneNumber, password);
-
-      if (response['success']) {
-        // Registration successful
-        // Navigate to home or login screen
-        Navigator.pushNamed(context, '/home');
-      } else {
-        // Handle validation errors
-        setState(() {
-          // Clear previous errors
-          _usernameError = null;
-          _fullNameError = null;
-          _phoneNumberError = null;
-          _passwordError = null;
-
-          // Parse error messages from the response
-          for (var error in response['errors']) {
-            error.forEach((key, value) {
-              if (key == 'username') {
-                _usernameError = value;
-              } else if (key == 'phone_number') {
-                _phoneNumberError = value;
-              } else if (key == 'password') {
-                _passwordError = value;
-              }
-            });
-          }
-        });
-      }
-    } else {
-      // Handle form validation (e.g., show error message)
-      setState(() {
-        _usernameError = _usernameController.text.isEmpty ? 'Username is required' : null;
-        _fullNameError = _fullNameController.text.isEmpty ? 'Full name is required' : null;
-        _phoneNumberError = _phoneNumberController.text.isEmpty ? 'Phone number is required' : null;
-        _passwordError = _passwordController.text.isEmpty ? 'Password is required' : null;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +112,64 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(height: 30),
 
               ElevatedButton(
-                onPressed: _registerUser, // Call the register function
+                onPressed: () async {
+                  final String username = _usernameController.text;
+                  final String fullName = _fullNameController.text;
+                  final String phoneNumber = _phoneNumberController.text;
+                  final String password = _passwordController.text;
+
+                  if (username.isNotEmpty &&
+                      fullName.isNotEmpty &&
+                      phoneNumber.isNotEmpty &&
+                      password.isNotEmpty) {
+                    final response = await AuthService.registerUser(
+                        username, fullName, phoneNumber, password);
+
+                    if (response['success']) {
+                      // Registration successful
+                      // Navigate to home or login screen
+                      Navigator.pushNamed(context, '/home');
+                    } else {
+                      // Handle validation errors
+                      setState(() {
+                        // Clear previous errors
+                        _usernameError = null;
+                        _fullNameError = null;
+                        _phoneNumberError = null;
+                        _passwordError = null;
+
+                        // Parse error messages from the response
+                        for (var error in response['errors']) {
+                          error.forEach((key, value) {
+                            if (key == 'username') {
+                              _usernameError = value;
+                            } else if (key == 'phone_number') {
+                              _phoneNumberError = value;
+                            } else if (key == 'password') {
+                              _passwordError = value;
+                            }
+                          });
+                        }
+                      });
+                    }
+                  } else {
+                    // Handle form validation (e.g., show error message)
+                    setState(() {
+                      _usernameError = _usernameController.text.isEmpty
+                          ? 'Username is required'
+                          : null;
+                      _fullNameError = _fullNameController.text.isEmpty
+                          ? 'Full name is required'
+                          : null;
+                      _phoneNumberError = _phoneNumberController.text.isEmpty
+                          ? 'Phone number is required'
+                          : null;
+                      _passwordError = _passwordController.text.isEmpty
+                          ? 'Password is required'
+                          : null;
+                    });
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.orange,
                   backgroundColor: Colors.black,
