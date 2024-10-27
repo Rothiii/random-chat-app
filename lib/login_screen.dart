@@ -1,7 +1,19 @@
+import 'package:anonymous_chat/service/auth_service.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _usernameOrPhoneNumberController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  String? _usernameOrPhoneNumberError;
+  String? _passwordError;
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +49,13 @@ class LoginScreen extends StatelessWidget {
 
                 // Username Input Field
                 TextField(
+                  controller: _usernameOrPhoneNumberController,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(
                       Icons.person,
                       color: Colors.white,
                     ),
-                    hintText: 'Username',
+                    hintText: 'Username Or Phone Number',
                     hintStyle: const TextStyle(color: Colors.white54),
                     filled: true,
                     fillColor: Colors.orange,
@@ -50,6 +63,7 @@ class LoginScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide.none,
                     ),
+                    errorText: _usernameOrPhoneNumberError,
                   ),
                   style: const TextStyle(color: Colors.white),
                 ),
@@ -58,6 +72,7 @@ class LoginScreen extends StatelessWidget {
                 // Password Input Field
                 TextField(
                   obscureText: true,
+                  controller: _passwordController,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(
                       Icons.lock,
@@ -73,6 +88,7 @@ class LoginScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide.none,
                     ),
+                    errorText: _passwordError,
                   ),
                   style: const TextStyle(color: Colors.white),
                 ),
@@ -80,9 +96,44 @@ class LoginScreen extends StatelessWidget {
 
                 // Login Button
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Handle login logic
-                    Navigator.pushNamed(context, '/Home');
+                    final usernameOrPhoneNumber = _usernameOrPhoneNumberController.text;
+                    final password = _passwordController.text;
+
+                    if (usernameOrPhoneNumber.isEmpty) {
+                      setState(() {
+                        _usernameOrPhoneNumberError = 'Username Or Phone Number is required';
+                      });
+                      return;
+                    }
+                    if (password.isEmpty) {
+                      setState(() {
+                        _passwordError = 'Password is required';
+                      });
+                      return;
+                    }
+
+                    final response =
+                        await AuthService.loginUser(usernameOrPhoneNumber, password);
+                        
+                    if (response['success']) {
+                      // Handle successful login
+                      Navigator.pushNamed(context, '/Home');
+                    } else {
+                      // Show error message
+                      setState(() {
+                        _usernameOrPhoneNumberError = null;
+                        _passwordError = null;
+
+                        print(response);
+                        if(response['tags'][0] == 'username_or_phone_number') {
+                          _usernameOrPhoneNumberError = response['message'];
+                        } else if(response['tags'][0] == 'password') {
+                          _passwordError = response['message'];
+                        }
+                      });
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.orange,
