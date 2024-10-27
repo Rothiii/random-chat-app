@@ -1,8 +1,8 @@
-// import 'package:chat_with_stranger/Screens/Homescreen.dart';
 import 'package:anonymous_chat/chat_anonym_screen.dart';
 import 'package:anonymous_chat/chat_bot_screen.dart';
 import 'package:anonymous_chat/home.dart';
 import 'package:anonymous_chat/login_screen.dart';
+import 'package:anonymous_chat/onboarding_screen.dart';
 import 'package:anonymous_chat/sign_up_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(),
       // home: const LoginScreen(),
       routes: {
-        '/': (context) => const LoginScreen(),
+        '/': (context) => const OnboardingScreen(),
         '/Login': (context) => const LoginScreen(),
         '/SignUp': (context) => const SignUpScreen(),
         '/Home': (context) => const HomeScreen(),
