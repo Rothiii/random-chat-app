@@ -157,8 +157,11 @@ class HomeScreen extends StatelessWidget {
                         Center(
                           child: ElevatedButton(
                             onPressed: () {
+                              // delete shared preferences and route to login
+                              [
+                                Navigator.pushNamed(context, '/Login'),
+                              ];
                               // Handle logout
-                              Navigator.pushNamed(context, '/Login');
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,
