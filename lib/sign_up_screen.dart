@@ -128,7 +128,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     if (response['success']) {
                       // Registration successful
                       // Navigate to home or login screen
-                      Navigator.pushNamed(context, '/home');
+                      Navigator.pushNamed(context, '/Login');
                     } else {
                       // Handle validation errors
                       setState(() {
