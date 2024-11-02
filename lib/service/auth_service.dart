@@ -70,6 +70,7 @@ class AuthService {
           'status': jsonResponse['status'],
           'message': jsonResponse['message'],
           'tags': jsonResponse['tags'],
+          'errors': jsonResponse['errors'],
         };
       }
     } catch (error) {

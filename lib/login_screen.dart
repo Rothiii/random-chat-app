@@ -9,11 +9,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _usernameOrPhoneNumberController = TextEditingController();
+  final TextEditingController _usernameOrPhoneNumberController =
+      TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   String? _usernameOrPhoneNumberError;
   String? _passwordError;
+  bool _isPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -53,84 +55,128 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: InputDecoration(
                     prefixIcon: const Icon(
                       Icons.person,
-                      color: Colors.white,
+                      color: Colors.orange,
                     ),
                     hintText: 'Username Or Phone Number',
-                    hintStyle: const TextStyle(color: Colors.white54),
+                    hintStyle: const TextStyle(color: Colors.orange),
                     filled: true,
-                    fillColor: Colors.orange,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
+                    fillColor: Colors.white,
+                    border: const UnderlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Colors.orange,
+                          width: 2.0), // No border around the field
+                    ),
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange, width: 2.0),
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange, width: 2.0),
                     ),
                     errorText: _usernameOrPhoneNumberError,
                   ),
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.orange),
                 ),
                 const SizedBox(height: 20),
 
                 // Password Input Field
                 TextField(
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible,
                   controller: _passwordController,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(
                       Icons.lock,
-                      color: Colors.white,
+                      color: Colors.orange,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.orange,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
                     ),
                     hintText: 'Password',
                     hintStyle: const TextStyle(
-                      color: Colors.white54,
+                      color: Colors.orange,
                     ),
                     filled: true,
-                    fillColor: Colors.orange,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
+                    fillColor: Colors
+                        .transparent, // Make field transparent for gradient
+                    border: const UnderlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Colors.orange,
+                          width: 2.0), // No border around the field
+                    ),
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange, width: 2.0),
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange, width: 2.0),
                     ),
                     errorText: _passwordError,
                   ),
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.orange),
                 ),
                 const SizedBox(height: 30),
 
                 // Login Button
                 ElevatedButton(
                   onPressed: () async {
-                    // Handle login logic
-                    final usernameOrPhoneNumber = _usernameOrPhoneNumberController.text;
+                    // Ambil input username/phone dan password
+                    final usernameOrPhoneNumber =
+                        _usernameOrPhoneNumberController.text;
                     final password = _passwordController.text;
 
-                    if (usernameOrPhoneNumber.isEmpty) {
-                      setState(() {
-                        _usernameOrPhoneNumberError = 'Username Or Phone Number is required';
-                      });
-                      return;
-                    }
-                    if (password.isEmpty) {
-                      setState(() {
-                        _passwordError = 'Password is required';
-                      });
-                      return;
-                    }
+                    setState(() {
+                      // Reset error messages
+                      _usernameOrPhoneNumberError =
+                          usernameOrPhoneNumber.isEmpty
+                              ? 'Username or phone number is required'
+                              : null;
+                      _passwordError =
+                          password.isEmpty ? 'Password is required' : null;
+                    });
 
-                    final response =
-                        await AuthService.loginUser(usernameOrPhoneNumber, password);
-                        
+                    if (usernameOrPhoneNumber.isEmpty || password.isEmpty)
+                      return;
+
+                    final response = await AuthService.loginUser(
+                        usernameOrPhoneNumber, password);
+
                     if (response['success']) {
                       // Handle successful login
                       Navigator.pushNamed(context, '/Home');
                     } else {
-                      // Show error message
                       setState(() {
                         _usernameOrPhoneNumberError = null;
                         _passwordError = null;
 
-                        print(response);
-                        if(response['tags'][0] == 'username_or_phone_number') {
-                          _usernameOrPhoneNumberError = response['message'];
-                        } else if(response['tags'][0] == 'password') {
-                          _passwordError = response['message'];
+                        if (response['errors'] != null) {
+                          // Error validation dari server
+                          for (var error in response['errors']) {
+                            error.forEach((key, value) {
+                              if (key == 'username') {
+                                _usernameOrPhoneNumberError = value;
+                              } else if (key == 'password') {
+                                _passwordError = value;
+                              }
+                            });
+                          }
+                        } else if (response['status'] != 'VALIDATION_ERROR' &&
+                            response['tags'] != null &&
+                            response['tags'].isNotEmpty) {
+                          // Error status dari server
+                          if (response['tags'][0] ==
+                              'username_or_phone_number') {
+                            _usernameOrPhoneNumberError = response['message'];
+                          } else if (response['tags'][0] == 'password') {
+                            _passwordError = response['message'];
+                          }
                         }
                       });
                     }
@@ -139,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     foregroundColor: Colors.orange,
                     backgroundColor: Colors.black87, // Text color
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
