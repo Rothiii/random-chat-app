@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'package:anonymous_chat/utils/shared_preferences_manager.dart';
 import 'package:http/http.dart' as http;
 import 'package:anonymous_chat/api/api_endpoint.dart';
 
 class AuthService {
+  SharedPreferencesManager prefManager = SharedPreferencesManager();
+
   static Future<Map<String, dynamic>> registerUser(String username,
       String fullName, String phoneNumber, String password) async {
     const String apiUrl = ApiEndPoints.register;
@@ -39,7 +42,7 @@ class AuthService {
     }
   }
 
-  static Future<Map<String, dynamic>> loginUser(
+  Future<Map<String, dynamic>> loginUser(
       String usernameOrPhoneNumber, String password) async {
     const String apiUrl = ApiEndPoints.login;
 
@@ -58,6 +61,11 @@ class AuthService {
       if (response.statusCode == 200) {
         // Handle successful response (200 OK)
         final jsonResponse = jsonDecode(response.body);
+
+        // Save token to shared preferences
+        prefManager.saveToken(jsonResponse['data']['token']);
+        prefManager.saveIsLoggedIn(true);
+
         return {
           'success': true,
           'message': jsonResponse['message'],

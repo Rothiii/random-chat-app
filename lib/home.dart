@@ -1,7 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:anonymous_chat/utils/shared_preferences_manager.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
+
+  final SharedPreferencesManager prefManager = SharedPreferencesManager();
+
+  Future<void> _navigateToAnonymousChat(BuildContext context) async {
+    final isLoggedIn = await prefManager.isLoggedIn();
+
+    if (isLoggedIn) {
+      Navigator.pushNamed(context, '/ChatAnonym');
+    } else {
+      // Tampilkan dialog jika belum login
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Anda Belum Login"),
+            content: const Text(
+                "Silakan login terlebih dahulu untuk mengakses chat ini."),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("OK"),
+                onPressed: () {
+                  Navigator.pop(context); // Tutup dialog
+                  Navigator.pushNamed(
+                      context, '/Login'); // Arahkan ke halaman login
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,8 +104,7 @@ class HomeScreen extends StatelessWidget {
                             const SizedBox(height: 8),
                             ElevatedButton(
                               onPressed: () {
-                                // Navigate to anonymous chat
-                                Navigator.pushNamed(context, '/ChatAnonym');
+                                _navigateToAnonymousChat(context);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.orange,
@@ -159,6 +191,8 @@ class HomeScreen extends StatelessWidget {
                             onPressed: () {
                               // delete shared preferences and route to login
                               [
+                                prefManager.deleteToken(),
+                                prefManager.deleteIsLoggedIn(),
                                 Navigator.pushNamed(context, '/Login'),
                               ];
                               // Handle logout

@@ -12,6 +12,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameOrPhoneNumberController =
       TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final AuthService authService = AuthService();
 
   String? _usernameOrPhoneNumberError;
   String? _passwordError;
@@ -127,7 +128,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Login Button
                 ElevatedButton(
                   onPressed: () async {
-                    // Ambil input username/phone dan password
                     final usernameOrPhoneNumber =
                         _usernameOrPhoneNumberController.text;
                     final password = _passwordController.text;
@@ -142,10 +142,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           password.isEmpty ? 'Password is required' : null;
                     });
 
-                    if (usernameOrPhoneNumber.isEmpty || password.isEmpty)
+                    if (usernameOrPhoneNumber.isEmpty || password.isEmpty) {
                       return;
+                    }
 
-                    final response = await AuthService.loginUser(
+                    final response = await authService.loginUser(
                         usernameOrPhoneNumber, password);
 
                     if (response['success']) {
@@ -157,7 +158,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         _passwordError = null;
 
                         if (response['errors'] != null) {
-                          // Error validation dari server
                           for (var error in response['errors']) {
                             error.forEach((key, value) {
                               if (key == 'username') {
@@ -170,7 +170,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         } else if (response['status'] != 'VALIDATION_ERROR' &&
                             response['tags'] != null &&
                             response['tags'].isNotEmpty) {
-                          // Error status dari server
                           if (response['tags'][0] ==
                               'username_or_phone_number') {
                             _usernameOrPhoneNumberError = response['message'];
