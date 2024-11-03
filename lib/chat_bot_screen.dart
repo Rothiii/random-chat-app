@@ -1,4 +1,5 @@
-import 'package:anonymous_chat/widget/chat_bubble.dart';
+import 'package:anonymous_chat/service/llm_service.dart';
+import 'package:anonymous_chat/widget/chat_bubble_bot.dart';
 import 'package:flutter/material.dart';
 
 class ChatBotScreen extends StatefulWidget {
@@ -12,9 +13,10 @@ class ChatBotScreen extends StatefulWidget {
 class _ChatBotScreenState extends State<ChatBotScreen>
     with WidgetsBindingObserver {
   final TextEditingController _controller = TextEditingController();
-  final List<Map<String, dynamic>> _messages = [];
+  final List<Map<String, String>> _messages = [{'role': 'assistant', 'content': 'Hai, apa yang bisa saya bantu hari ini? '}];
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
+  final LlmService _llmService = LlmService();
 
   @override
   void initState() {
@@ -39,25 +41,23 @@ class _ChatBotScreenState extends State<ChatBotScreen>
     });
   }
 
-  void _sendMessage() {
+  void _sendMessage() async {
     String message = _controller.text.trim();
     if (message.isNotEmpty) {
       setState(() {
-        _messages.add({'text': message, 'isUser': true});
+        _messages.add({'role': 'user', 'content': message});
         _controller.clear();
       });
 
       _scrollToBottom();
 
-      Future.delayed(const Duration(seconds: 2), () {
+      final botReply = await _llmService.sendMessage(_messages);
+      if (botReply != null) {
         setState(() {
-          _messages.add({
-            'text': 'Ini balasan bot/anonym',
-            'isUser': false,
-          });
+          _messages.add({'role': 'assistant', 'content': botReply});
         });
         _scrollToBottom();
-      });
+      }
 
       _focusNode.requestFocus();
     }
@@ -104,8 +104,8 @@ class _ChatBotScreenState extends State<ChatBotScreen>
                 itemBuilder: (context, index) {
                   final message = _messages[index];
                   return ChatBubble(
-                    message: message['text'],
-                    isUser: message['isUser'],
+                    content: message['content'] ?? '',
+                    role: message['role'] ?? 'unknown',
                   );
                 },
               ),
