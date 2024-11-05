@@ -61,7 +61,6 @@ class AuthService {
       if (response.statusCode == 200) {
         // Handle successful response (200 OK)
         final jsonResponse = jsonDecode(response.body);
-
         // Save token to shared preferences
         prefManager.saveToken(jsonResponse['data']['token']);
         prefManager.saveIsLoggedIn(true);
@@ -69,6 +68,49 @@ class AuthService {
         return {
           'success': true,
           'message': jsonResponse['message'],
+        };
+      } else {
+        // Return error message
+        final jsonResponse = jsonDecode(response.body);
+        return {
+          'success': false,
+          'status': jsonResponse['status'],
+          'message': jsonResponse['message'],
+          'tags': jsonResponse['tags'],
+          'errors': jsonResponse['errors'],
+        };
+      }
+    } catch (error) {
+      return {
+        'success': false,
+        'message': error.toString(),
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> getUserData() async {
+    const String apiUrl = ApiEndPoints.me;
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer ${await prefManager.getToken()}',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Handle successful response (200 OK)
+        final jsonResponse = jsonDecode(response.body);
+        await prefManager.saveUserData(
+          jsonResponse['data']['username'],
+          jsonResponse['data']['full_name'],
+          jsonResponse['data']['phone_number'],
+          jsonResponse['data']['user_id'],
+        );
+        return {
+          'success': true,
+          'data': jsonResponse['data'],
         };
       } else {
         // Return error message

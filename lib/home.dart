@@ -12,7 +12,7 @@ class HomeScreen extends StatelessWidget {
     if (isLoggedIn) {
       Navigator.pushNamed(context, '/ChatAnonym');
     } else {
-      // Tampilkan dialog jika belum login
+      // Show dialog if not logged in
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -24,9 +24,8 @@ class HomeScreen extends StatelessWidget {
               TextButton(
                 child: const Text("OK"),
                 onPressed: () {
-                  Navigator.pop(context); // Tutup dialog
-                  Navigator.pushNamed(
-                      context, '/Login'); // Arahkan ke halaman login
+                  Navigator.pop(context); // Close dialog
+                  Navigator.pushNamed(context, '/Login'); // Navigate to login
                 },
               ),
             ],
@@ -36,19 +35,29 @@ class HomeScreen extends StatelessWidget {
     }
   }
 
+  Future<List<String>> _getUserData() async {
+    final userData = await prefManager.getUserData();
+    return userData;
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    await prefManager.deleteToken();
+    await prefManager.deleteIsLoggedIn();
+    await prefManager.deleteUserData();
+    Navigator.pushNamedAndRemoveUntil(context, '/Login', (route) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // Container acting as app bar with logo
+          // App bar with logo
           Container(
-            width: double.infinity, // Stretch from edge to edge
+            width: double.infinity,
             padding: const EdgeInsets.all(16.0),
-            decoration: const BoxDecoration(
-              color: Colors.black,
-            ),
+            decoration: const BoxDecoration(color: Colors.black),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -60,23 +69,28 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
-          // Wrapping content in SingleChildScrollView to make it scrollable
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0, vertical: 16.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Greeting Section
-                    const Text(
-                      'Hello, (name user)',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange,
-                      ),
+                    // Greeting section with dynamic user name
+                    FutureBuilder<List<String>>(
+                      future: _getUserData(),
+                      builder: (context, snapshot) {
+                        final userName = snapshot.data?[0] ?? 'New User!';
+                        return Text(
+                          'Hello, $userName',
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -149,7 +163,6 @@ class HomeScreen extends StatelessWidget {
                             const SizedBox(height: 8),
                             ElevatedButton(
                               onPressed: () {
-                                // Navigate to bot chat
                                 Navigator.pushNamed(context, '/ChatBot');
                               },
                               style: ElevatedButton.styleFrom(
@@ -176,26 +189,18 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         const Divider(color: Colors.black),
                         const SizedBox(height: 16),
-                        // Note
                         const Text(
-                          'Note :\nAll chat is temporary, when you exit all chat will be deleted',
+                          'Note:\nAll chat is temporary, when you exit all chat will be deleted',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.black,
                           ),
                         ),
                         const SizedBox(height: 32),
-                        // Logout Button
                         Center(
                           child: ElevatedButton(
                             onPressed: () {
-                              // delete shared preferences and route to login
-                              [
-                                prefManager.deleteToken(),
-                                prefManager.deleteIsLoggedIn(),
-                                Navigator.pushNamed(context, '/Login'),
-                              ];
-                              // Handle logout
+                              _logout(context); // Handle logout
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,

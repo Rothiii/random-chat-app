@@ -1,4 +1,5 @@
 import 'package:anonymous_chat/service/auth_service.dart';
+import 'package:anonymous_chat/utils/shared_preferences_manager.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,6 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
       TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final AuthService authService = AuthService();
+  final SharedPreferencesManager prefManager = SharedPreferencesManager();
 
   String? _usernameOrPhoneNumberError;
   String? _passwordError;
@@ -150,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         usernameOrPhoneNumber, password);
 
                     if (response['success']) {
-                      // Handle successful login
+                      await authService.getUserData();
                       Navigator.pushNamed(context, '/Home');
                     } else {
                       setState(() {
