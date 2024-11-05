@@ -1,4 +1,4 @@
-import 'package:anonymous_chat/widget/chat_bubble.dart';
+import 'package:anonymous_chat/widget/chat_bubble_bot.dart';
 import 'package:flutter/material.dart';
 
 class ChatAnonymScreen extends StatefulWidget {
@@ -12,7 +12,6 @@ class ChatAnonymScreen extends StatefulWidget {
 class _ChatAnonymScreenState extends State<ChatAnonymScreen>
     with WidgetsBindingObserver {
   final TextEditingController _controller = TextEditingController();
-  final List<Map<String, dynamic>> _messages = [];
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
 
@@ -31,34 +30,22 @@ class _ChatAnonymScreenState extends State<ChatAnonymScreen>
     super.dispose();
   }
 
-  void _scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-      }
+  void _scrollToBottom(){
+    Future.delayed(const Duration(milliseconds: 100), () {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+      );
     });
   }
 
   void _sendMessage() {
     String message = _controller.text.trim();
     if (message.isNotEmpty) {
-      setState(() {
-        _messages.add({'text': message, 'isUser': true});
-        _controller.clear();
-      });
 
       _scrollToBottom();
-
-      Future.delayed(const Duration(seconds: 2), () {
-        setState(() {
-          _messages.add({
-            'text': 'Ini balasan bot/anonym',
-            'isUser': false,
-          });
-        });
-        _scrollToBottom();
-      });
-
+      
       _focusNode.requestFocus();
     }
   }
@@ -76,7 +63,7 @@ class _ChatAnonymScreenState extends State<ChatAnonymScreen>
           },
         ),
         title: const Text(
-          "Now you are with bot",
+          "Room Chat With Anonym",
           style: TextStyle(color: Colors.white, fontSize: 16),
         ),
         centerTitle: true,
@@ -84,7 +71,7 @@ class _ChatAnonymScreenState extends State<ChatAnonymScreen>
           Padding(
             padding: EdgeInsets.all(8.0),
             child: CircleAvatar(
-              backgroundImage: AssetImage('assets/images/bot.jpg'),
+              backgroundImage: AssetImage('assets/images/image_anonym.png'),
             ),
           ),
         ],
@@ -96,20 +83,20 @@ class _ChatAnonymScreenState extends State<ChatAnonymScreen>
         },
         child: Column(
           children: [
-            Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(16.0),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
-                  return ChatBubble(
-                    message: message['text'],
-                    isUser: message['isUser'],
-                  );
-                },
-              ),
-            ),
+            // Expanded(
+            //   child: ListView.builder(
+            //     controller: _scrollController,
+            //     padding: const EdgeInsets.all(16.0),
+            //     itemCount: _messages.length,
+            //     itemBuilder: (context, index) {
+            //       final message = _messages[index];
+            //       return ChatBubble(
+            //         content: message['content'] ?? '',
+            //         role: message['role'] ?? 'unknown',
+            //       );
+            //     },
+            //   ),
+            // ),
             // Input field at the bottom
             Container(
               padding:
