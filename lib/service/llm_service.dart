@@ -20,7 +20,6 @@ class LlmService {
       final data = jsonDecode(response.body);
       return data['choices'][0]['message']['content'];
     } else {
-      print("Error: ${response.statusCode}");
       return null;
     }
   }
