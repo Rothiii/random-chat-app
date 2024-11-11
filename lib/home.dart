@@ -72,8 +72,8 @@ class HomeScreen extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0, vertical: 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -81,15 +81,35 @@ class HomeScreen extends StatelessWidget {
                     FutureBuilder<List<String>>(
                       future: _getUserData(),
                       builder: (context, snapshot) {
-                        final userName = snapshot.data?[0] ?? 'New User!';
-                        return Text(
-                          'Hello, $userName',
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange,
-                          ),
-                        );
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator(); // Sementara loading
+                        } else if (snapshot.hasError) {
+                          // Tangani error jika ada
+                          return Text('Error: ${snapshot.error}');
+                        } else if (snapshot.hasData &&
+                            snapshot.data!.isNotEmpty) {
+                          final userData = snapshot.data!;
+                          final userName =
+                              userData[0].isNotEmpty ? userData[0] : 'Guest';
+                          return Text(
+                            'Hello, $userName',
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange,
+                            ),
+                          );
+                        } else {
+                          return const Text(
+                            'Hello, New User!',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange,
+                            ),
+                          );
+                        }
                       },
                     ),
                     const SizedBox(height: 8),
@@ -103,8 +123,12 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 32),
                     // Option to meet new people
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
+                        Image.asset(
+                          'assets/images/image_anonym.png',
+                          height: 100,
+                        ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -124,6 +148,9 @@ class HomeScreen extends StatelessWidget {
                                 backgroundColor: Colors.orange,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 16.0, vertical: 8.0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
                               child: const Text(
                                 'Get Started',
@@ -135,16 +162,12 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        Image.asset(
-                          'assets/images/image_anonym.png',
-                          height: 100,
-                        ),
                       ],
                     ),
                     const SizedBox(height: 32),
                     // Option to talk to bot
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         Image.asset(
                           'assets/images/bot.jpg',
@@ -166,10 +189,12 @@ class HomeScreen extends StatelessWidget {
                                 Navigator.pushNamed(context, '/ChatBot');
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0, vertical: 8.0),
-                              ),
+                                  backgroundColor: Colors.orange,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0, vertical: 8.0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  )),
                               child: const Text(
                                 'Get Started',
                                 style: TextStyle(
