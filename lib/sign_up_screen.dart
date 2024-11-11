@@ -20,6 +20,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? _fullNameError;
   String? _phoneNumberError;
   String? _passwordError;
+  bool _isPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -42,36 +43,55 @@ class _SignUpScreenState extends State<SignUpScreen> {
               TextField(
                 controller: _usernameController,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.person, color: Colors.white),
+                  prefixIcon: const Icon(
+                    Icons.person,
+                    color: Colors.orange,
+                  ),
                   hintText: 'Username',
-                  hintStyle: const TextStyle(color: Colors.white54),
+                  hintStyle: const TextStyle(color: Colors.orange),
                   filled: true,
-                  fillColor: Colors.orange,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
+                  fillColor: Colors.white,
+                  border: const UnderlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Colors.orange,
+                        width: 2.0), // No border around the field
+                  ),
+                  enabledBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.orange, width: 2.0),
+                  ),
+                  focusedBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.orange, width: 2.0),
                   ),
                   errorText: _usernameError,
                 ),
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.orange),
               ),
               const SizedBox(height: 20),
 
               TextField(
                 controller: _fullNameController,
                 decoration: InputDecoration(
-                    prefixIcon:
-                        const Icon(Icons.person_outline, color: Colors.white),
-                    hintText: 'Full Name',
-                    hintStyle: const TextStyle(color: Colors.white54),
+                    prefixIcon: const Icon(
+                      Icons.person_2_outlined,
+                      color: Colors.orange,
+                    ),
+                    hintText: 'Fullname',
+                    hintStyle: const TextStyle(color: Colors.orange),
                     filled: true,
-                    fillColor: Colors.orange,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
+                    fillColor: Colors.white,
+                    border: const UnderlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Colors.orange,
+                          width: 2.0), // No border around the field
+                    ),
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange, width: 2.0),
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange, width: 2.0),
                     ),
                     errorText: _fullNameError),
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.orange),
               ),
               const SizedBox(height: 20),
 
@@ -79,35 +99,68 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 controller: _phoneNumberController,
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.phone, color: Colors.white),
+                    prefixIcon: const Icon(
+                      Icons.phone,
+                      color: Colors.orange,
+                    ),
                     hintText: 'Phone Number',
-                    hintStyle: const TextStyle(color: Colors.white54),
+                    hintStyle: const TextStyle(color: Colors.orange),
                     filled: true,
-                    fillColor: Colors.orange,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
+                    fillColor: Colors.white,
+                    border: const UnderlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Colors.orange,
+                          width: 2.0), // No border around the field
+                    ),
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange, width: 2.0),
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange, width: 2.0),
                     ),
                     errorText: _phoneNumberError),
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.orange),
               ),
               const SizedBox(height: 20),
 
               TextField(
                 controller: _passwordController,
-                obscureText: true,
+                obscureText: !_isPasswordVisible,
                 decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.lock, color: Colors.white),
+                    prefixIcon: const Icon(
+                      Icons.lock,
+                      color: Colors.orange,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.orange,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
                     hintText: 'Password',
-                    hintStyle: const TextStyle(color: Colors.white54),
+                    hintStyle: const TextStyle(color: Colors.orange),
                     filled: true,
-                    fillColor: Colors.orange,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
+                    fillColor: Colors.white,
+                    border: const UnderlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Colors.orange,
+                          width: 2.0), // No border around the field
+                    ),
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange, width: 2.0),
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange, width: 2.0),
                     ),
                     errorText: _passwordError),
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.orange),
               ),
               const SizedBox(height: 30),
 
@@ -174,7 +227,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   foregroundColor: Colors.orange,
                   backgroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
