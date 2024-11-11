@@ -1,36 +1,53 @@
-import 'package:anonymous_chat/widget/chat_bubble_bot.dart';
+import 'package:anonymous_chat/widget/chat_bubble_anonym.dart';
 import 'package:flutter/material.dart';
+import 'package:anonymous_chat/service/socket_service.dart';
 
 class ChatAnonymScreen extends StatefulWidget {
   const ChatAnonymScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ChatAnonymScreenState createState() => _ChatAnonymScreenState();
 }
 
-class _ChatAnonymScreenState extends State<ChatAnonymScreen>
-    with WidgetsBindingObserver {
+class _ChatAnonymScreenState extends State<ChatAnonymScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final FocusNode _focusNode = FocusNode();
+  final SocketService _socketService = SocketService();
+  bool _isSearching = true;
+  List<Map<String, dynamic>> _messages = [];
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    _socketService.connect();
+
+    _socketService.socket?.on('matching', (_) {
+      setState(() {
+        _isSearching = false;
+      });
+    });
+
+    _socketService.socket?.on('partner_left', (_) {
+      Navigator.pushReplacementNamed(context, '/Home');
+    });
+
+    _socketService.socket?.on('receiveMessage', (data) {
+      setState(() {
+        _messages.add({'content': data['message'], 'isMe': false});
+      });
+      _scrollToBottom();
+    });
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    _socketService.disconnect();
     _controller.dispose();
     _scrollController.dispose();
-    _focusNode.dispose();
     super.dispose();
   }
 
-  void _scrollToBottom(){
+  void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 100), () {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
@@ -43,10 +60,13 @@ class _ChatAnonymScreenState extends State<ChatAnonymScreen>
   void _sendMessage() {
     String message = _controller.text.trim();
     if (message.isNotEmpty) {
-
+      setState(() {
+        _messages.add({'content': message, 'isMe': true});
+      });
+      _socketService.sendMessage(message);
+      print('Sent: $message');
+      _controller.clear();
       _scrollToBottom();
-      
-      _focusNode.requestFocus();
     }
   }
 
@@ -77,39 +97,32 @@ class _ChatAnonymScreenState extends State<ChatAnonymScreen>
         ],
       ),
       body: GestureDetector(
-        onTap: () {
-          // Hapus fokus dari TextField untuk menutup keyboard
-          FocusScope.of(context).unfocus();
-        },
+        onTap: () => FocusScope.of(context).unfocus(),
         child: Column(
           children: [
-            // Expanded(
-            //   child: ListView.builder(
-            //     controller: _scrollController,
-            //     padding: const EdgeInsets.all(16.0),
-            //     itemCount: _messages.length,
-            //     itemBuilder: (context, index) {
-            //       final message = _messages[index];
-            //       return ChatBubble(
-            //         content: message['content'] ?? '',
-            //         role: message['role'] ?? 'unknown',
-            //       );
-            //     },
-            //   ),
-            // ),
-            // Input field at the bottom
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(16.0),
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  final message = _messages[index];
+                  return ChatBubble(
+                    content: message['content'] ?? '',
+                    isMe: message['isMe'] ?? false,
+                  );
+                },
+              ),
+            ),
             Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              decoration: const BoxDecoration(
-                color: Colors.black,
-              ),
+              color: Colors.black,
               child: Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      focusNode: _focusNode,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: "Type a message",
@@ -117,9 +130,7 @@ class _ChatAnonymScreenState extends State<ChatAnonymScreen>
                             TextStyle(color: Colors.white.withOpacity(0.5)),
                         border: InputBorder.none,
                       ),
-                      onSubmitted: (value) {
-                        _sendMessage();
-                      },
+                      onSubmitted: (_) => _sendMessage(),
                     ),
                   ),
                   IconButton(

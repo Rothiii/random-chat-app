@@ -6,4 +6,7 @@ class ApiEndPoints {
 
   static const String botUrl = 'https://k46h62n3-1234.asse.devtunnels.ms';
   static const String chatBot = '$botUrl/v1/chat/completions';
+
+  static const String chatUrl = 'https://k46h62n3-3000.asse.devtunnels.ms';
+  static const String chatAnonym = '$chatUrl/socket_anonymous_chat';
 }

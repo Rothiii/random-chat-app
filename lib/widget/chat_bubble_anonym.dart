@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ChatBubble extends StatelessWidget {
   final String content;
-  final bool isMe; // true jika pesan dari "saya:", false jika dari anonym
+  final bool isMe; // true jika pesan dari saya, false jika dari anonym
 
   const ChatBubble({
     super.key,
@@ -23,13 +23,6 @@ class ChatBubble extends StatelessWidget {
         decoration: BoxDecoration(
           color: isMe ? Colors.white : Colors.orange.shade300,
           borderRadius: BorderRadius.circular(12.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 4.0,
-              spreadRadius: 1.0,
-            ),
-          ],
         ),
         child: Text(
           content,
