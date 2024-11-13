@@ -1,21 +1,13 @@
-import 'dart:convert';
 import 'package:anonymous_chat/api/api_endpoint.dart';
 import 'package:anonymous_chat/utils/shared_preferences_manager.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SocketService {
-  IO.Socket socket = IO.io(ApiEndPoints.chatAnonym, <String, dynamic>{
-    'transports': ['websocket'],
-    'autoConnect': false,
-  });
+  IO.Socket? socket;
   SharedPreferencesManager prefManager = SharedPreferencesManager();
 
-  // Inisialisasi koneksi dengan token
-  Future<void> connect() async {
+  Future<void> connect(Function(String, dynamic) updateStateCallback) async {
     final token = await prefManager.getToken();
-
-    if (token == null) return; // Pastikan token tidak null
 
     socket = IO.io(ApiEndPoints.chatAnonym, <String, dynamic>{
       'transports': ['websocket'],
@@ -23,37 +15,34 @@ class SocketService {
       'extraHeaders': {'authorization': 'Bearer $token'},
     });
 
-    socket?.connect();
+    socket?.on('connect', (_) {
+      print('Socket connected in service');
+    });
 
-    // Listener untuk event
+    socket?.on('disconnect', (_) {
+      print('Socket disconnected');
+    });
+
     socket?.on('matching', (_) {
-      print("Pair found");
+      print("Matched with partner");
+      updateStateCallback('matching', null);
     });
 
-    socket?.on('receiveMessage', (message) {
-      print("Received: $message");
+    socket?.on('partnerDisconnect', (_) {
+      print("Partner disconnected");
+      updateStateCallback('partnerDisconnect', null);
     });
 
-    socket?.on('waiting', (_) {
-      print("Waiting for pair");
+    socket?.on('receiveMessage', (data) {
+      updateStateCallback('receiveMessage', data);
     });
 
     socket?.on('joinRoom', (data) {
-      print("Joined room: $data");
+      socket?.emit('joinRoomAck', data['room_id']);
     });
 
-    socket?.onDisconnect((_) {
-      print("Disconnected from socket.");
+    socket?.on('sendMessage', (data) {
+      updateStateCallback('sendMessage', data);
     });
-  }
-
-  void disconnect() {
-    socket?.emit("disconnect");
-    socket?.disconnect();
-    print("Disconnected from socket.");
-  }
-
-  void sendMessage(String message) {
-    socket?.emit('sendMessage', {'message': message});
   }
 }
