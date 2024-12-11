@@ -10,7 +10,7 @@ class LlmService {
       Uri.parse(baseUrl),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
-        "model": "llama-3.2-3b-instruct-uncensored.q4_k_m",
+        "model": "gemma-2-9b-it-q4_k_m",
         "messages": message,
         "stream": false // Set to true if using streaming
       }),
