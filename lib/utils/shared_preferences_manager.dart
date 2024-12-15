@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:anonymous_chat/models/user-login.dart';
 
 class SharedPreferencesManager {
   final String tokenKey = 'token';
@@ -20,11 +22,8 @@ class SharedPreferencesManager {
     await prefs.setBool(isLoginInKey, isLoggedIn);
   }
 
-  Future<void> saveUserData(
-      String userName,
-      String fullName,
-      String phoneNumber,
-      String userId) async {
+  Future<void> saveUserData(String userName, String fullName,
+      String phoneNumber, String userId) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString(userNameKey, userName);
     await prefs.setString(fullNameKey, fullName);
@@ -32,6 +31,10 @@ class SharedPreferencesManager {
     await prefs.setString(userIdKey, userId);
   }
 
+  Future<void> saveUser(UserLogin user) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user', jsonEncode(user.toJson()));
+  }
   // Remove
 
   Future<void> deleteToken() async {
@@ -47,6 +50,9 @@ class SharedPreferencesManager {
   Future<void> deleteUserData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove(userNameKey);
+    await prefs.remove(fullNameKey);
+    await prefs.remove(phoneNumberKey);
+    await prefs.remove(userIdKey);
   }
 
   // Read
@@ -69,4 +75,13 @@ class SharedPreferencesManager {
       prefs.getString(userIdKey) ?? '',
     ];
   }
+
+  Future<UserLogin?> getUser() async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String? userData = prefs.getString('user');
+  if (userData != null) {
+    return UserLogin.fromJson(jsonDecode(userData));
+  }
+  return null;
 }
+} 

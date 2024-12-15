@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:anonymous_chat/service/llm_service.dart';
 import 'package:anonymous_chat/widget/chat_bubble_bot.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,9 @@ class ChatBotScreen extends StatefulWidget {
 class _ChatBotScreenState extends State<ChatBotScreen>
     with WidgetsBindingObserver {
   final TextEditingController _controller = TextEditingController();
-  final List<Map<String, String>> _messages = [{'role': 'assistant', 'content': 'Hai, apa yang bisa saya bantu hari ini? '}];
+  final List<Map<String, String>> _messages = [
+    {'role': 'assistant', 'content': 'Hai, apa yang bisa saya bantu hari ini? '}
+  ];
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   final LlmService _llmService = LlmService();
@@ -33,7 +36,7 @@ class _ChatBotScreenState extends State<ChatBotScreen>
     super.dispose();
   }
 
-  void _scrollToBottom(){
+  void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 100), () {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
@@ -68,52 +71,92 @@ class _ChatBotScreenState extends State<ChatBotScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.orange.shade300,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pushNamed(context, '/Home');
-          },
-        ),
-        title: const Text(
-          "Now you are with bot",
-          style: TextStyle(color: Colors.white, fontSize: 16),
-        ),
-        centerTitle: true,
-        actions: const [
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              backgroundImage: AssetImage('assets/images/bot.jpg'),
-            ),
-          ),
-        ],
-      ),
-      body: GestureDetector(
-        onTap: () {
-          // Hapus fokus dari TextField untuk menutup keyboard
-          FocusScope.of(context).unfocus();
-        },
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(16.0),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
-                  return ChatBubble(
-                    content: message['content'] ?? '',
-                    role: message['role'] ?? 'unknown',
-                  );
-                },
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              // AppBar dengan efek blur
+              SizedBox(
+                height: 90,
+                child: Stack(
+                  children: [
+                    BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.orange.shade300.withOpacity(0.7),
+                              Colors.orange.shade500.withOpacity(0.3),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.orange.withOpacity(0.5),
+                              blurRadius: 20,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 0),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    AppBar(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      leading: IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/Home');
+                        },
+                      ),
+                      title: const Text(
+                        "Now you are with bot",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                      centerTitle: true,
+                      actions: const [
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircleAvatar(
+                            backgroundImage:
+                                AssetImage('assets/images/bot-min.jpg'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            // Input field at the bottom
-            Container(
+              // Konten utama
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    // Hapus fokus dari TextField untuk menutup keyboard
+                    FocusScope.of(context).unfocus();
+                  },
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      return ChatBubble(
+                        content: message['content'] ?? '',
+                        role: message['role'] ?? 'unknown',
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // Input field di bagian bawah layar
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               decoration: const BoxDecoration(
@@ -144,8 +187,8 @@ class _ChatBotScreenState extends State<ChatBotScreen>
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

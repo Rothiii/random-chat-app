@@ -1,4 +1,5 @@
 import 'package:anonymous_chat/login_screen.dart';
+import 'package:anonymous_chat/utils/shared_preferences_manager.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -9,6 +10,9 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
+
+  SharedPreferencesManager prefManager = SharedPreferencesManager();
+
   final PageController _pageController = PageController();
   int currentPage = 0;
 
@@ -62,6 +66,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    prefManager.isLoggedIn().then((isLoggedIn) {
+      if (isLoggedIn) {
+        navigateToLogin(context);
+      }
+    });
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -75,7 +84,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
         ],
       ),
-      body: PageView.builder(
+      body: PageView.builder(                        
         controller: _pageController,
         onPageChanged: (int page) {
           setState(() {

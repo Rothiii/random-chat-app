@@ -2,8 +2,8 @@ import 'package:anonymous_chat/api/api_endpoint.dart';
 import 'package:anonymous_chat/utils/shared_preferences_manager.dart';
 import 'package:anonymous_chat/widget/chat_bubble_anonym.dart';
 import 'package:flutter/material.dart';
-import 'package:anonymous_chat/service/socket_service.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'dart:ui';
 
 class ChatAnonymScreen extends StatefulWidget {
   const ChatAnonymScreen({super.key});
@@ -111,88 +111,137 @@ class _ChatAnonymScreenState extends State<ChatAnonymScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.orange.shade300,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pushNamedAndRemoveUntil(
-                context, '/Home', (route) => false);
-          },
-        ),
-        title: const Text(
-          "Room Chat With Anonym",
-          style: TextStyle(color: Colors.white, fontSize: 16),
-        ),
-        centerTitle: true,
-        actions: const [
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              backgroundImage: AssetImage('assets/images/image_anonym.png'),
-            ),
-          ),
-        ],
-      ),
-      body: _isSearching
-          ? const Center(
-              child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Searching for a partner...',
-                    style: TextStyle(fontSize: 18)),
-              ],
-            ))
-          : GestureDetector(
-              onTap: () => FocusScope.of(context).unfocus(),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(16.0),
-                      itemCount: _messages.length,
-                      itemBuilder: (context, index) {
-                        final message = _messages[index];
-                        return ChatBubble(
-                          content: message['content'] ?? '',
-                          isMe: message['isMe'] ?? false,
-                        );
-                      },
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8.0),
-                    color: Colors.black,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _controller,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: "Type a message",
-                              hintStyle: TextStyle(
-                                  color: Colors.white.withOpacity(0.5)),
-                              border: InputBorder.none,
-                            ),
-                            onSubmitted: (_) => _sendMessage(),
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              // Bagian AppBar dengan efek blur
+              SizedBox(
+                height: 90, // Tinggi AppBar
+                child: Stack(
+                  children: [
+                    BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.orange.shade300.withOpacity(0.7),
+                              Colors.orange.shade500.withOpacity(0.3),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.orange.withOpacity(0.5),
+                              blurRadius: 20,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 0),
+                            ),
+                          ],
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.send, color: Colors.white),
-                          onPressed: _sendMessage,
+                      ),
+                    ),
+                    AppBar(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      leading: IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () {
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/Home', (route) => false);
+                        },
+                      ),
+                      title: const Text(
+                        "Room Chat With Anonym",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                      centerTitle: true,
+                      actions: const [
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircleAvatar(
+                            backgroundImage:
+                                AssetImage('assets/images/image_anonym.png'),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+              // Konten utama (Body) tanpa blur
+              Expanded(
+                child: _isSearching
+                    ? const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 16),
+                            Text(
+                              'Searching for a partner...',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ],
+                        ),
+                      )
+                    : GestureDetector(
+                        onTap: () => FocusScope.of(context).unfocus(),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: ListView.builder(
+                                controller: _scrollController,
+                                padding: const EdgeInsets.all(16.0),
+                                itemCount: _messages.length,
+                                itemBuilder: (context, index) {
+                                  final message = _messages[index];
+                                  return ChatBubble(
+                                    content: message['content'] ?? '',
+                                    isMe: message['isMe'] ?? false,
+                                  );
+                                },
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 8.0),
+                              color: Colors.black,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _controller,
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                      decoration: InputDecoration(
+                                        hintText: "Type a message",
+                                        hintStyle: TextStyle(
+                                            color:
+                                                Colors.white.withOpacity(0.5)),
+                                        border: InputBorder.none,
+                                      ),
+                                      onSubmitted: (_) => _sendMessage(),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.send,
+                                        color: Colors.white),
+                                    onPressed: _sendMessage,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

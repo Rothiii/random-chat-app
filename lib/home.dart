@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:anonymous_chat/utils/shared_preferences_manager.dart';
+import 'package:wave/config.dart';
+import 'package:wave/wave.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -37,7 +39,7 @@ class HomeScreen extends StatelessWidget {
 
   Future<List<String>> _getUserData() async {
     final userData = await prefManager.getUserData();
-    return userData;
+    return userData.isEmpty ? ['Guest'] : userData;
   }
 
   Future<void> _logout(BuildContext context) async {
@@ -54,20 +56,42 @@ class HomeScreen extends StatelessWidget {
       body: Column(
         children: [
           // App bar with logo
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16.0),
-            decoration: const BoxDecoration(color: Colors.black),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
+          Stack(
+            children: [
+              Transform(
+                alignment: Alignment.center,
+                transform:
+                    Matrix4.rotationX(3.14159), // Flip the wave vertically
+                child: SizedBox(
+                  height: 150,
+                  child: WaveWidget(
+                    config: CustomConfig(
+                      colors: [
+                        Colors.orange.withOpacity(0.5),
+                        Colors.orange.withOpacity(0.3),
+                        Colors.orange.withOpacity(0.2),
+                      ],
+                      durations: [35000, 20000, 45000],
+                      heightPercentages: [0.1, 0.35, 0.5],
+                      blur: const MaskFilter.blur(BlurStyle.solid, 10),
+                    ),
+                    waveAmplitude: 50,
+                    backgroundColor: Colors.white,
+                    size: const Size(double.infinity, double.infinity),
+                  ),
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16.0),
+                alignment: Alignment.center,
+                child: Image.asset(
                   'assets/images/anonymous_chat_logo.png',
                   height: 50,
                   width: 50,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -78,7 +102,7 @@ class HomeScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Greeting section with dynamic user name
-                    FutureBuilder<List<String>>(
+                    FutureBuilder<List>(
                       future: _getUserData(),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
@@ -87,23 +111,15 @@ class HomeScreen extends StatelessWidget {
                         } else if (snapshot.hasError) {
                           // Tangani error jika ada
                           return Text('Error: ${snapshot.error}');
-                        } else if (snapshot.hasData &&
-                            snapshot.data!.isNotEmpty) {
-                          final userData = snapshot.data!;
-                          final userName =
-                              userData[0].isNotEmpty ? userData[0] : 'Guest';
+                        } else {
+                          final user = snapshot.data;
+                          final hasValidUser = user != null &&
+                              user.any((element) => element.isNotEmpty);
+
+                          final userName = hasValidUser ? user[0] : 'Guest';
                           return Text(
                             'Hello, $userName',
                             style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange,
-                            ),
-                          );
-                        } else {
-                          return const Text(
-                            'Hello, New User!',
-                            style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
                               color: Colors.orange,
@@ -170,7 +186,7 @@ class HomeScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         Image.asset(
-                          'assets/images/bot.jpg',
+                          'assets/images/bot-min.jpg',
                           height: 100,
                         ),
                         Column(
@@ -246,6 +262,24 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
+            ),
+          ),
+          SizedBox(
+            height: 100,
+            child: WaveWidget(
+              config: CustomConfig(
+                colors: [
+                  Colors.orange.withOpacity(0.5),
+                  Colors.orange.withOpacity(0.3),
+                  Colors.orange.withOpacity(0.2),
+                ],
+                durations: [35000, 20000, 45000],
+                heightPercentages: [0.1, 0.35, 0.5],
+                blur: const MaskFilter.blur(BlurStyle.solid, 10),
+              ),
+              waveAmplitude: 50,
+              backgroundColor: Colors.white,
+              size: const Size(double.infinity, double.infinity),
             ),
           ),
         ],

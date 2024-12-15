@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:anonymous_chat/utils/shared_preferences_manager.dart';
+import 'package:anonymous_chat/models/user-login.dart';
 import 'package:http/http.dart' as http;
 import 'package:anonymous_chat/api/api_endpoint.dart';
 
@@ -59,32 +60,23 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        // Handle successful response (200 OK)
         final jsonResponse = jsonDecode(response.body);
         // Save token to shared preferences
-        prefManager.saveToken(jsonResponse['data']['token']);
-        prefManager.saveIsLoggedIn(true);
+        await prefManager.saveToken(jsonResponse['data']['token']);
+        await prefManager.saveIsLoggedIn(true);
 
-        return {
-          'success': true,
-          'message': jsonResponse['message'],
-        };
+        return {'success': true, 'message': jsonResponse['message']};
       } else {
-        // Return error message
         final jsonResponse = jsonDecode(response.body);
         return {
           'success': false,
           'status': jsonResponse['status'],
           'message': jsonResponse['message'],
-          'tags': jsonResponse['tags'],
           'errors': jsonResponse['errors'],
         };
       }
     } catch (error) {
-      return {
-        'success': false,
-        'message': error.toString(),
-      };
+      return {'success': false, 'message': error.toString()};
     }
   }
 

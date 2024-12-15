@@ -6,7 +6,7 @@ plugins {
 }
 
 def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file("D:/Kuliah/Semester 7/Pengembangan Aplikasi Perangkat Bergerak B/random-chat-app/android/key.properties")
+def keystorePropertiesFile = rootProject.file("D:/Data Kuliah/Semester 7/PAPB/code/chat_with_stranger/android/key.properties")
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
