@@ -105,6 +105,7 @@ class _ChatBotScreenState extends State<ChatBotScreen>
                     ),
                     AppBar(
                       backgroundColor: Colors.transparent,
+                      surfaceTintColor: Colors.transparent,
                       elevation: 0,
                       leading: IconButton(
                         icon: const Icon(Icons.arrow_back, color: Colors.white),
