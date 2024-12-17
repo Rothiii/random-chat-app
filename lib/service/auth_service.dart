@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:anonymous_chat/utils/shared_preferences_manager.dart';
-import 'package:anonymous_chat/models/user-login.dart';
 import 'package:http/http.dart' as http;
 import 'package:anonymous_chat/api/api_endpoint.dart';
 
