@@ -137,56 +137,58 @@ class _ChatBotScreenState extends State<ChatBotScreen>
                     // Hapus fokus dari TextField untuk menutup keyboard
                     FocusScope.of(context).unfocus();
                   },
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(16.0),
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) {
-                      final message = _messages[index];
-                      return ChatBubble(
-                        content: message['content'] ?? '',
-                        role: message['role'] ?? 'unknown',
-                      );
-                    },
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.all(16.0),
+                          itemCount: _messages.length,
+                          itemBuilder: (context, index) {
+                            final message = _messages[index];
+                            return ChatBubble(
+                              content: message['content'] ?? '',
+                              role: message['role'] ?? 'unknown',
+                            );
+                          },
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8.0),
+                        decoration: const BoxDecoration(
+                          color: Colors.black,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _controller,
+                                focusNode: _focusNode,
+                                style: const TextStyle(color: Colors.white),
+                                decoration: InputDecoration(
+                                  hintText: "Type a message",
+                                  hintStyle: TextStyle(
+                                      color: Colors.white.withOpacity(0.5)),
+                                  border: InputBorder.none,
+                                ),
+                                onSubmitted: (value) {
+                                  _sendMessage();
+                                },
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.send, color: Colors.white),
+                              onPressed: _sendMessage,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ],
-          ),
-          // Input field di bagian bawah layar
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              decoration: const BoxDecoration(
-                color: Colors.black,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      focusNode: _focusNode,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: "Type a message",
-                        hintStyle:
-                            TextStyle(color: Colors.white.withOpacity(0.5)),
-                        border: InputBorder.none,
-                      ),
-                      onSubmitted: (value) {
-                        _sendMessage();
-                      },
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white),
-                    onPressed: _sendMessage,
-                  ),
-                ],
-              ),
-            ),
           ),
         ],
       ),
